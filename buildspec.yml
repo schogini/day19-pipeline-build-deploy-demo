@@ -1,0 +1,28 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Install phase started"
+      - echo "No dependencies needed for this simple HTML project"
+
+  pre_build:
+    commands:
+      - echo "Pre-build phase started"
+      - echo "Checking source files..."
+      - ls -la
+
+  build:
+    commands:
+      - echo "Build phase started"
+      - echo "Preparing deployment artifact"
+
+  post_build:
+    commands:
+      - echo "Build completed successfully"
+
+artifacts:
+  files:
+    - index.html
+    - appspec.yml
+    - scripts/**/*
