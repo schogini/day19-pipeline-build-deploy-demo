@@ -1,0 +1,134 @@
+{
+    "pipeline": {
+        "name": "test2",
+        "roleArn": "arn:aws:iam::533431643007:role/service-role/AWSCodePipelineServiceRole-ap-south-1-Day19Pipeline",
+        "artifactStore": {
+            "type": "S3",
+            "location": "codepipeline-ap-south-1-3a257ad0c3e7-4a83-b1f0-d4652357ac94"
+        },
+        "stages": [
+            {
+                "name": "Source",
+                "actions": [
+                    {
+                        "name": "Source",
+                        "actionTypeId": {
+                            "category": "Source",
+                            "owner": "AWS",
+                            "provider": "CodeStarSourceConnection",
+                            "version": "1"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "BranchName": "master",
+                            "ConnectionArn": "arn:aws:codeconnections:ap-south-1:533431643007:connection/db18f275-186b-4c66-95e7-365b64d6cffd",
+                            "DetectChanges": "true",
+                            "FullRepositoryId": "schogini/day19-pipeline-build-deploy-demo",
+                            "OutputArtifactFormat": "CODE_ZIP"
+                        },
+                        "outputArtifacts": [
+                            {
+                                "name": "SourceArtifact"
+                            }
+                        ],
+                        "inputArtifacts": [],
+                        "region": "ap-south-1",
+                        "namespace": "SourceVariables"
+                    }
+                ],
+                "onFailure": {
+                    "result": "RETRY",
+                    "retryConfiguration": {
+                        "retryMode": "ALL_ACTIONS"
+                    }
+                }
+            },
+            {
+                "name": "Build",
+                "actions": [
+                    {
+                        "name": "Build",
+                        "actionTypeId": {
+                            "category": "Build",
+                            "owner": "AWS",
+                            "provider": "CodeBuild",
+                            "version": "1"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "ProjectName": "Day19CodeBuildProject"
+                        },
+                        "outputArtifacts": [
+                            {
+                                "name": "BuildArtifact"
+                            }
+                        ],
+                        "inputArtifacts": [
+                            {
+                                "name": "SourceArtifact"
+                            }
+                        ],
+                        "region": "ap-south-1",
+                        "namespace": "BuildVariables"
+                    }
+                ],
+                "onFailure": {
+                    "result": "RETRY",
+                    "retryConfiguration": {
+                        "retryMode": "ALL_ACTIONS"
+                    }
+                }
+            },
+            {
+                "name": "Deploy",
+                "actions": [
+                    {
+                        "name": "Deploy",
+                        "actionTypeId": {
+                            "category": "Deploy",
+                            "owner": "AWS",
+                            "provider": "CodeDeploy",
+                            "version": "1"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "ApplicationName": "Day19Deployment",
+                            "DeploymentGroupName": "Day19DeploymentGroup"
+                        },
+                        "outputArtifacts": [],
+                        "inputArtifacts": [
+                            {
+                                "name": "BuildArtifact"
+                            }
+                        ],
+                        "region": "ap-south-1",
+                        "namespace": "DeployVariables"
+                    }
+                ],
+                "onFailure": {
+                    "result": "ROLLBACK"
+                }
+            }
+        ],
+        "version": 1,
+        "executionMode": "QUEUED",
+        "pipelineType": "V2",
+        "triggers": [
+            {
+                "providerType": "CodeStarSourceConnection",
+                "gitConfiguration": {
+                    "sourceActionName": "Source",
+                    "push": [
+                        {
+                            "branches": {
+                                "includes": [
+                                    "master"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
